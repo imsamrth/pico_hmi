@@ -12,11 +12,16 @@ int main() {
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
-    // to print icon 
+    // to print pixel
     
 
-    mode0_print_icon("Retro Computer (c) 2021, Shawn Hyam");
-
+    GPU_DrawLine(MODE0_WHITE, 120, 0,  120, 230);
+        GPU_DrawLine(MODE0_WHITE, 121, 0,  121, 230);
+            GPU_DrawLine(MODE0_WHITE, 122, 0,  122, 230);
+                GPU_DrawLine(MODE0_WHITE, 123, 0,  123, 230);
+                    GPU_DrawLine(MODE0_WHITE, 124, 0,  124, 230);
+    //GPU_DrawPixel(MODE0_GREEN, 120, 120);
+    GPU_render();
 
 
     // ENd here 

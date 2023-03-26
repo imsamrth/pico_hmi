@@ -28,6 +28,10 @@
         "composable_scanline.h": "c",
         "coco4.h": "c",
         "multicore.h": "c",
-        "scanvideo.h": "c"
+        "scanvideo.h": "c",
+        "ili9341.h": "c",
+        "string.h": "c",
+        "spi.h": "c",
+        "stdint.h": "c"
     }
 }

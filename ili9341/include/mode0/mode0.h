@@ -39,7 +39,8 @@ void mode0_show_cursor();
 void mode0_hide_cursor();
 void GPU_DrawPixel( uint16_t color, uint16_t x, uint16_t y);
 void GPU_render ();
-
+void GPU_DrawEmptyCircle(uint16_t color, int16_t x, int16_t y, int16_t radius);
+void GPU_draw_icon(uint16_t color, int16_t x, int16_t y);
 // mode0_print_icon(const char *s);
 
 

@@ -38,6 +38,7 @@
 
 
 #include <stdint.h>
+#include "font/font.h"
 
 /* Standard ASCII 6x8 font */
 const uint8_t font6x8[]=
