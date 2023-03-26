@@ -22,6 +22,17 @@ typedef enum {
     MODE0_PALE_BLUE
 } mode0_color_t;
 
+
+typedef enum {
+    MODE0_NOTI,
+    MODE0_BATT,
+    MODE0_MORE,
+    MODE0_BT,
+    MODE_WEL
+} mode0_icon_t;
+
+
+
 void mode0_init();
 void mode0_clear(mode0_color_t color);
 void mode0_draw_screen();
@@ -41,7 +52,15 @@ void GPU_DrawPixel( uint16_t color, uint16_t x, uint16_t y);
 void GPU_render ();
 void GPU_DrawEmptyCircle(uint16_t color, int16_t x, int16_t y, int16_t radius);
 void GPU_draw_icon(uint16_t color, int16_t x, int16_t y);
+void GPU_draw_icon_C(uint16_t color, mode0_icon_t icon,   int16_t x, int16_t y) ;
+void GPU_draw_wallpaper(uint16_t color, mode0_icon_t icon,  int16_t x, int16_t y) ;
+void GPU_DrawFilledSquare(uint16_t color, int16_t x, int16_t y, int16_t width, int16_t height);
+void GPU_DrawText(uint16_t color, uint8_t  fontDescription, int16_t x, int16_t y, const char * text, uint16_t len);
 // mode0_print_icon(const char *s);
+
+void GPU_DrawLetter_L(uint16_t color,  int16_t x, int16_t y, char letter);
+
+void GPU_DrawText_L(uint16_t color,  int16_t x, int16_t y, const char * text, uint16_t len);
 
 
 // Won't redraw until the matching _end is invoked.

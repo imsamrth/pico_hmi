@@ -130,6 +130,9 @@ static uint8_t screen[TEXT_HEIGHT * TEXT_WIDTH] = { 0 };
 static uint8_t colors[TEXT_HEIGHT * TEXT_WIDTH] = { 0 };
 static uint8_t show_cursor = 0;
 
+static const FontDescription * f_big = &fontDescription[0];
+// static const FontDescription * f_huge = &fontDescription[3];
+
 static int depth = 0;
 static uint16_t palette[16] = {
     SWAP_BYTES(0x0000),
@@ -148,6 +151,15 @@ static uint16_t palette[16] = {
     SWAP_BYTES(0x02B0),
     SWAP_BYTES(0x351E),
     SWAP_BYTES(0xB6FD)
+};
+
+
+static uint8_t * icons[5] = {
+    &notification_map,
+    &battery_map,
+    &more_map,
+    &bluetooth_map,
+    &wel_map
 };
 
 void mode0_clear(mode0_color_t color) {
@@ -705,13 +717,44 @@ void GPU_DrawLetter(uint16_t color, uint8_t  fontDescription, int16_t x, int16_t
     }
 }
 
-// void GPU_DrawText(uint16_t color, uint8_t  fontDescription, int16_t x, int16_t y, const char * text, uint16_t len)
-// {
-//     for (uint16_t i=0; i<len; i++)
-//     {
-//         GPU_DrawLetter(color, fontDescription, x+i*fontDescription->width, y, text[i]);
-//     }
-// }
+void GPU_DrawText(uint16_t color, uint8_t  fontDescription, int16_t x, int16_t y, const char * text, uint16_t len)
+{
+    for (uint16_t i=0; i<len; i++)
+    {
+        GPU_DrawLetter(color, fontDescription, x+i*8, y, text[i]);
+    }
+}
+
+
+// printing larger text 
+
+void GPU_DrawLetter_L(uint16_t color, int16_t x, int16_t y, char letter)
+
+{
+    
+    const FontDescription * fontDescription = f_big;
+
+    for (uint16_t i=0; i<fontDescription->height; i++)
+    {
+        uint16_t current_pic = fontDescription->fontArray[(letter-32)*fontDescription->height+i];
+        for (uint8_t j=0; j<fontDescription->width; j++)
+        {
+            if (current_pic & (1<<(16-j)))
+                GPU_DrawPixel(color, x+j, y+i);
+        }
+    }
+}
+
+void GPU_DrawText_L(uint16_t color, int16_t x, int16_t y, const char * text, uint16_t len)
+{
+
+        const FontDescription * fontDescription = f_big;
+    for (uint16_t i=0; i<len; i++)
+    {
+        GPU_DrawLetter_L(color,  x+i*fontDescription->width, y, text[i]);
+    }
+}
+
 
 void GPU_draw_icon(uint16_t color, int16_t x, int16_t y) {
     // assert depth == 0?
@@ -727,7 +770,68 @@ for (int i = 0; i < 24; i++){
     }
 }
 
-   
+
+
+// GPU _ DRAW _ ICON multiple
+void GPU_draw_icon_C(uint16_t color, mode0_icon_t icon,  int16_t x, int16_t y) {
+    // assert depth == 0?
+for (int i = 0; i < 24; i++){
+    for(int j = 23; j>=0; j--){
+             
+                uint8_t * icon_array = icons[icon]; 
+                uint8_t pixel_data = icon_array[j*24 + i];
+                pixel_data = pixel_data%16;
+
+
+
+                // cahnginh pixel code 
+
+                GPU_DrawPixel(pixel_data, x+i, y+j);
+
+
+            // if (x >= WIDTH|| y >= HEIGHT)
+            //     {int z = 0 ;}
+            // else {              uint16_t * pix = &_framebuffer[(WIDTH-x-1)*HEIGHT+y];
+            //                     (*pix) = (uint16_t) pixel_data ;
+            // }
+
+            }
+        
+    }
+}
+
+void GPU_draw_wallpaper(uint16_t color, mode0_icon_t icon,  int16_t x, int16_t y) {
+    // assert depth == 0?
+for (int i = 0; i < 320; i++){
+    for(int j = 176; j>=10; j--){
+             
+                uint8_t * icon_array = icons[icon]; 
+                uint8_t pixel_data = icon_array[j*320 + i];
+                if (pixel_data != 0 ){
+
+                pixel_data = 13;
+                //pixel_data%16;
+                GPU_DrawPixel(pixel_data, x+i, y+j);
+                }
+
+
+
+                // cahnginh pixel code 
+
+
+
+
+            // if (x >= WIDTH|| y >= HEIGHT)
+            //     {int z = 0 ;}
+            // else {              uint16_t * pix = &_framebuffer[(WIDTH-x-1)*HEIGHT+y];
+            //                     (*pix) = (uint16_t) pixel_data ;
+            // }
+
+            }
+        
+    }
+}
+
 
 
 
