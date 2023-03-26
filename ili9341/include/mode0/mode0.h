@@ -37,6 +37,11 @@ void mode0_write(const char *s, int len);
 void mode0_putc(char c);
 void mode0_show_cursor();
 void mode0_hide_cursor();
+void GPU_DrawPixel( uint16_t color, uint16_t x, uint16_t y);
+void GPU_render ();
+
+// mode0_print_icon(const char *s);
+
 
 // Won't redraw until the matching _end is invoked.
 void mode0_begin();

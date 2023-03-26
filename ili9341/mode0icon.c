@@ -108,16 +108,10 @@ static const uint8_t font_data[95][12] = {
 };
 
 
-#define TEXT_HEIGHT 24
+#define TEXT_HEIGHT 10
 #define TEXT_WIDTH 53
 
-#define WIDTH 320
-#define HEIGHT 240
-
 #define SWAP_BYTES(color) ((uint16_t)(color>>8) | (uint16_t)(color<<8))
-
-
-static uint16_t _framebuffer[WIDTH*HEIGHT] = {0};  // GPU VRAM (16bits per color)
 
 static mode0_color_t screen_bg_color = MODE0_BLACK;
 static mode0_color_t screen_fg_color = MODE0_WHITE;  // TODO need to store a color per cell
@@ -351,20 +345,121 @@ void mode0_init() {
 }
 
 
-// printing pixel 
+// Printing icon 
 
+static const uint8_t icon_pack[5][24] = {
+    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    { 0x00, 0x10, 0x10, 0x10, 0x10, 0x10, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00,0x00, 0x10, 0x10, 0x10, 0x10, 0x10, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00 },
+    { 0x00, 0x28, 0x28, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00, 0x28, 0x28, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    { 0x00, 0x00, 0x28, 0x7C, 0x28, 0x7C, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00,0x00, 0x00, 0x28, 0x7C, 0x28, 0x7C, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    { 0x00, 0x10, 0x3C, 0x40, 0x38, 0x04, 0x78, 0x10, 0x00, 0x00, 0x00, 0x00,0x00, 0x10, 0x3C, 0x40, 0x38, 0x04, 0x78, 0x10, 0x00, 0x00, 0x00, 0x00 }  
+};
 
-void GPU_DrawPixel( uint16_t color, uint16_t x, uint16_t y)
-{
-    if (x >= WIDTH|| y >= HEIGHT)
-        return;
-    uint16_t * pix = &_framebuffer[(WIDTH-x-1)*HEIGHT+y];
-    (*pix) = (uint16_t) color;
+void mode0_print_icon(const char *str) {
+    mode0_begin();
+    char c;
+    while (c = *str++) {
+        mode0_puti(c);
+    }
+    if (--depth == 0) {
+        mode0_draw_icon();
+    }
 }
 
-void GPU_render (){
-    ili9341_write_data(_framebuffer, 320*240*2);
+void mode0_puti(char c) {
+    mode0_begin();
+    
+    if (cursor_y >= TEXT_HEIGHT) {
+        mode0_scroll_vertical(cursor_y-TEXT_HEIGHT+1);
+        cursor_y = TEXT_HEIGHT-1;
+    }
+
+    int idx = cursor_y*TEXT_WIDTH + cursor_x;
+    if (c == '\n') {
+        // fill the rest of the line with empty content + the current bg color
+        memset(screen+idx, 0, TEXT_WIDTH-cursor_x);
+        memset(colors+idx, screen_bg_color, TEXT_WIDTH-cursor_x);
+        cursor_y++;
+        cursor_x = 0;
+    } else if (c == '\r') {
+        //cursor_x = 0;
+    } else if (c>=32 && c<=127) {
+        screen[idx] = c%5;
+        colors[idx] = ((screen_fg_color & 0xf) << 4) | (screen_bg_color & 0xf);
+        
+        cursor_x++;
+        if (cursor_x >= TEXT_WIDTH) {
+            cursor_x = 0;
+            cursor_y++;
+        }
+    }
+    
+    if (--depth == 0) {
+        mode0_draw_icon();
+    }
 }
 
+
+void mode0_draw_icon() {
+    // assert depth == 0?
+    depth = 0;
+    
+    // setup to draw the whole screen
+    
+    // column address set
+    ili9341_set_command(ILI9341_CASET);
+    ili9341_command_param(0x00);
+    ili9341_command_param(0x00);  // start column
+    ili9341_command_param(0x00);
+    ili9341_command_param(0xef);  // end column -> 239
+
+    // page address set
+    ili9341_set_command(ILI9341_PASET);
+    ili9341_command_param(0x00);
+    ili9341_command_param(0x00);  // start page
+    ili9341_command_param(0x01);
+    ili9341_command_param(0x3f);  // end page -> 319
+
+    // start writing
+    ili9341_set_command(ILI9341_RAMWR);
+
+    uint16_t buffer[6*240];  // 'amount' pixels wide, 240 pixels tall
+
+    int screen_idx = 0;
+    for (int x=0; x<TEXT_WIDTH; x++) {
+        // create one column of screen information
+        
+        uint16_t *buffer_idx = buffer;
+        
+        for (int bit=0; bit<6; bit++) {
+            uint8_t mask = 64>>bit;
+            for (int y=TEXT_HEIGHT-1; y>=0; y--) {
+                uint8_t character = screen[y*53+x];
+                uint16_t fg_color = palette[colors[y*53+x] >> 4];
+                uint16_t bg_color = palette[colors[y*53+x] & 0xf];
+
+                if (show_cursor && (cursor_x == x) && (cursor_y == y)) {
+                    bg_color = MODE0_GREEN;
+                }
+                                
+                const uint8_t* pixel_data = icon_pack[character];
+                
+                // draw the character into the buffer
+                for (int j=24; j>=1; j--) {
+                    *buffer_idx++ = (pixel_data[j] & mask) ? fg_color : bg_color;
+                    //*buffer_idx++ = bg_color ;
+                    //(pixel_data[j] & mask) ?  : bg_color;
+                }
+            }
+        }
+        
+        // now send the slice
+        ili9341_write_data(buffer, 6*240*2);
+    }
+    
+    uint16_t extra_buffer[2*240] = { 0 };
+    ili9341_write_data(extra_buffer, 2*240*2);
+
+}
 
 

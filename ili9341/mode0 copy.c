@@ -111,13 +111,7 @@ static const uint8_t font_data[95][12] = {
 #define TEXT_HEIGHT 24
 #define TEXT_WIDTH 53
 
-#define WIDTH 320
-#define HEIGHT 240
-
 #define SWAP_BYTES(color) ((uint16_t)(color>>8) | (uint16_t)(color<<8))
-
-
-static uint16_t _framebuffer[WIDTH*HEIGHT] = {0};  // GPU VRAM (16bits per color)
 
 static mode0_color_t screen_bg_color = MODE0_BLACK;
 static mode0_color_t screen_fg_color = MODE0_WHITE;  // TODO need to store a color per cell
@@ -302,9 +296,7 @@ void mode0_draw_screen() {
                 
                 // draw the character into the buffer
                 for (int j=10; j>=1; j--) {
-                    //*buffer_idx++ = (pixel_data[j] & mask) ? fg_color : bg_color;
-                    *buffer_idx++ = bg_color ;
-                    //(pixel_data[j] & mask) ?  : bg_color;
+                    *buffer_idx++ = (pixel_data[j] & mask) ? fg_color : bg_color;
                 }
             }
         }
@@ -349,22 +341,3 @@ void mode0_init() {
 
     ili9341_init();
 }
-
-
-// printing pixel 
-
-
-void GPU_DrawPixel( uint16_t color, uint16_t x, uint16_t y)
-{
-    if (x >= WIDTH|| y >= HEIGHT)
-        return;
-    uint16_t * pix = &_framebuffer[(WIDTH-x-1)*HEIGHT+y];
-    (*pix) = (uint16_t) color;
-}
-
-void GPU_render (){
-    ili9341_write_data(_framebuffer, 320*240*2);
-}
-
-
-
