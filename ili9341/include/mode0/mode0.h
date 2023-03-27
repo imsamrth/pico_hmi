@@ -51,6 +51,7 @@ void mode0_hide_cursor();
 void GPU_DrawPixel( uint16_t color, uint16_t x, uint16_t y);
 void GPU_render ();
 void GPU_DrawEmptyCircle(uint16_t color, int16_t x, int16_t y, int16_t radius);
+void GPU_DrawEmptySquare(uint16_t color, int16_t x, int16_t y, int16_t width, int16_t height);
 void GPU_draw_icon(uint16_t color, int16_t x, int16_t y);
 void GPU_draw_icon_C(uint16_t color, mode0_icon_t icon,   int16_t x, int16_t y) ;
 void GPU_draw_wallpaper(uint16_t color, mode0_icon_t icon,  int16_t x, int16_t y) ;

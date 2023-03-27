@@ -1,5 +1,7 @@
 #include "pico/stdlib.h"
 #include "mode0/mode0.h"
+#include <unistd.h> // notice this! you need it!
+#include "pico/time.h"
 
 int main() {
     mode0_init();
@@ -13,31 +15,86 @@ int main() {
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
-    char time[] = "03:59";
-    char * timeadd = &time ;
+    char title[] = "APPS";
+    char * titleadd = &title ;
     char date[] = "27 Feb";
     char * dateadd = &date ;
 
+    char samplenames [5][12] = {
+"Devices     ",
+"Notification",
+"Files       ",
+"Settings    ",
+"Wallpaper   "};
+
+    char samplename[] = "Files";
+    char * sampleadd = &samplename ;
 
     // to print icon 
     
-
-    GPU_DrawFilledSquare(MODE0_WHITE, 0, 0, 320, 40);
-    GPU_DrawFilledSquare(MODE0_GRAY, 0, 40, 320, 160);
-   
-
+    GPU_DrawFilledSquare(MODE0_WHITE, 0, 0, 320, 240);
+    GPU_DrawFilledSquare(MODE0_DESERT, 0, 0, 320, 40);
+    GPU_DrawFilledSquare(MODE0_WHITE, 0, 40, 320, 40);
     GPU_draw_icon_C(MODE0_ORANGE, MODE0_NOTI ,10, 8);
     GPU_draw_icon_C(MODE0_ORANGE, MODE0_BT , 250, 8);
     GPU_draw_icon_C(MODE0_ORANGE, MODE0_BATT ,290, 8);
+    GPU_draw_icon_C(MODE0_ORANGE, MODE0_MORE ,120, 48);
+    GPU_DrawText_L(MODE0_BLACK, 150, 47, titleadd ,4);
+    GPU_DrawFilledSquare(MODE0_GRAY, 308, 80, 10, 160);   
 
 
-    GPU_draw_wallpaper(MODE0_ORANGE, MODE_WEL, 0, 40);
-    GPU_DrawFilledSquare(MODE0_WHITE, 0, 200, 320, 40); 
-        GPU_draw_icon_C(MODE0_ORANGE, MODE0_MORE ,148, 208);
+    for (int i = 0; i < 4; i ++){
 
-    GPU_DrawText_L(MODE0_BLACK, 120, 100, timeadd ,5);
-    GPU_DrawFilledSquare(MODE0_GRAY, 132, 130, 48, 12);
-    GPU_DrawText(MODE0_RED, 1, 132, 130, dateadd ,6);
+        GPU_DrawFilledSquare(MODE0_PALE_BLUE, 5, 83 + i*40, 40, 34);
+        GPU_draw_icon_C(MODE0_ORANGE, i ,13, 88 + i*40);
+        GPU_DrawFilledSquare(MODE0_GRAY, 45, 83 + i*40, 260, 34); 
+        GPU_DrawText_L(MODE0_BLACK, 55, 87 +i*40 , &samplenames[i] ,10);
+        GPU_DrawEmptySquare(MODE0_BLACK,5,83 + i*40, 300,34);
+    }
+
+    //GPU_DrawEmptySquare(MODE0_BLACK,10,120, 300,40);
+
+    while(1){
+        for ( int i = 0 ; i < 4 ; i++){
+
+    GPU_DrawEmptySquare(MODE0_RED, 5, 83 + i*40, 300, 34); 
+    GPU_DrawEmptySquare(MODE0_RED, 6, 84 + i*40, 298, 32); 
+    GPU_DrawEmptySquare(MODE0_RED, 7, 84 + i*40, 296, 30); 
+    GPU_DrawFilledSquare(MODE0_BLACK, 308, 80 + 40*i, 10, 40);  
+
+    GPU_render();
+
+    sleep_ms(1000);
+
+    GPU_DrawEmptySquare(MODE0_WHITE, 5, 83 + i*40, 300, 34); 
+    GPU_DrawEmptySquare(MODE0_WHITE, 6, 84 + i*40, 298, 32); 
+    GPU_DrawEmptySquare(MODE0_WHITE, 7, 84 + i*40, 296, 30); 
+        GPU_DrawFilledSquare(MODE0_GRAY, 308, 80, 10, 160);   
+    }
+
+    }
+
+    // for (int i = 0 ; i < 4 ; i++){
+
+    //     for(int j = 0 ; j < 5000; j++){
+    //         j = j*2 ;
+    //         j = j/2 ;
+    //     }
+    // GPU_DrawEmptySquare(MODE0_RED, 10, 83 + i*40, 300, 34); 
+    // GPU_DrawEmptySquare(MODE0_RED, 11, 84 + i*40, 298, 32); 
+    // GPU_DrawEmptySquare(MODE0_RED, 12, 84 + i*40, 296, 30); 
+    // GPU_render();
+    // }
+    // GPU_draw_icon_C(MODE0_ORANGE, MODE0_MORE ,10, 48);
+
+
+    // GPU_draw_wallpaper(MODE0_ORANGE, MODE_WEL, 0, 40);
+    // GPU_DrawFilledSquare(MODE0_WHITE, 0, 200, 320, 40); 
+
+
+    // GPU_DrawText_L(MODE0_BLACK, 120, 100, timeadd ,5);
+    // GPU_DrawFilledSquare(MODE0_GRAY, 132, 130, 48, 12);
+    // GPU_DrawText(MODE0_RED, 1, 132, 130, dateadd ,6);
 
 
 
@@ -62,6 +119,7 @@ int main() {
     // GPU_draw_icon_C(MODE0_ORANGE, MODE0_NOTI ,80, 80);
     GPU_render();
 
+    
 
     // ENd here 
 
