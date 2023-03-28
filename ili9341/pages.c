@@ -1,10 +1,15 @@
 #include "pico/stdlib.h"
+#include <string.h>
+#include "hardware/spi.h"
+#include "ili9341/ili9341.h"
 #include "mode0/mode0.h"
-#include <unistd.h> // notice this! you need it!
-#include "pico/time.h"
-
-int main() {
-    mode0_init();
+#include "font/font.h"
+#include "icon/icon.h"
+#include "Pages/pages.h" 
+ 
+void Render_MenuPage();{
+ 
+ mode0_init();
     
     mode0_set_cursor(0, 0);
     mode0_color_t fg = MODE0_WHITE;
@@ -40,10 +45,7 @@ int main() {
     GPU_draw_icon_C(MODE0_ORANGE, MODE0_BATT ,290, 8);
     GPU_draw_icon_C(MODE0_ORANGE, MODE0_MORE ,120, 48);
     GPU_DrawText_L(MODE0_BLACK, 150, 47, titleadd ,4);
-    GPU_DrawFilledSquare(MODE0_GRAY, 308, 80, 10, 160);  
-
-
-    GPU_draw_icon_565(5,47); 
+    GPU_DrawFilledSquare(MODE0_GRAY, 308, 80, 10, 160);   
 
 
     for (int i = 0; i < 4; i ++){
@@ -51,7 +53,7 @@ int main() {
         GPU_DrawFilledSquare(MODE0_PALE_BLUE, 5, 83 + i*40, 40, 34);
         GPU_draw_icon_C(MODE0_ORANGE, i ,13, 88 + i*40);
         GPU_DrawFilledSquare(MODE0_GRAY, 45, 83 + i*40, 260, 34); 
-        GPU_DrawText_L(MODE0_BLACK, 55, 87 +i*40 , &samplenames[i] ,12);
+        GPU_DrawText_L(MODE0_BLACK, 55, 87 +i*40 , &samplenames[i] ,10);
         GPU_DrawEmptySquare(MODE0_BLACK,5,83 + i*40, 300,34);
     }
 
@@ -106,26 +108,4 @@ int main() {
     // GPU_draw_icon(MODE0_ORANGE, 50, 50);
     // GPU_draw_icon_C(MODE0_ORANGE, MODE0_NOTI ,80, 80);
     
-    GPU_render();
-
-    
-
-    // ENd here 
-
-    while (0) {
-        mode0_print("Retro Computer (c) 2021, Shawn Hyam\n");
-        sleep_ms(500);
-        fg = (fg+1) % 16;
-        if (fg == 0) {
-            bg = (bg+1) % 16;
-            mode0_set_background(bg);
-        }
-        mode0_set_foreground(fg);
-
-        gpio_put(LED_PIN, 1);
-        sleep_ms(250);
-        gpio_put(LED_PIN, 0);
-        sleep_ms(250);
-
-    }
-}
+    GPU_render();}
