@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdlib.h"
-#include "ili9341/ili9341.h"
+#include "include/ili9341/ili9341.h"
 
 /*
  

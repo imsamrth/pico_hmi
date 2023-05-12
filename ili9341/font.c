@@ -38,6 +38,10 @@
 
 
 #include <stdint.h>
+#include "font/font.h"
+
+
+// four different pixel size of font load here 
 
 /* Standard ASCII 6x8 font */
 const uint8_t font6x8[]=

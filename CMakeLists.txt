@@ -11,13 +11,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
 
-add_subdirectory(ssd1306)
+
+# Include sub-directory ili9341 to Build HMI
 add_subdirectory(ili9341)
-add_subdirectory(kilo)
-add_subdirectory(memory)
-add_subdirectory(ribbit)
-add_subdirectory(vga)
-add_subdirectory(textmode)
-add_subdirectory(coco4)
-add_subdirectory(cpu6809)
-add_subdirectory(cpu6502)
+
